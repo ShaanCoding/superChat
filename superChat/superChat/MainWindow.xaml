@@ -1,0 +1,18 @@
+﻿<Window x:Class="superChat.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:superChat"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Button x:Name="connect" Content="Button" HorizontalAlignment="Left" Margin="490,44,0,0" VerticalAlignment="Top" Width="75" Click="Connect_Click"/>
+        <Button x:Name="Send" Content="Button" HorizontalAlignment="Left" Margin="598,257,0,0" VerticalAlignment="Top" Width="74" Click="Send_Click"/>
+        <TextBox x:Name="clientPort" HorizontalAlignment="Left" Height="23" Margin="22,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="friendsPort" HorizontalAlignment="Left" Height="22" Margin="22,38,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <ListBox x:Name="chatBox" HorizontalAlignment="Left" Height="100" Margin="58,80,0,0" VerticalAlignment="Top" Width="416"/>
+        <TextBox x:Name="clientMessage" HorizontalAlignment="Left" Height="82" Margin="36,225,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="499"/>
+
+    </Grid>
+</Window>
