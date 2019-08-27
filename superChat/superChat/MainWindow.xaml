@@ -7,12 +7,19 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Button x:Name="connect" Content="Button" HorizontalAlignment="Left" Margin="490,44,0,0" VerticalAlignment="Top" Width="75" Click="Connect_Click"/>
-        <Button x:Name="Send" Content="Button" HorizontalAlignment="Left" Margin="598,257,0,0" VerticalAlignment="Top" Width="74" Click="Send_Click"/>
-        <TextBox x:Name="clientPort" HorizontalAlignment="Left" Height="23" Margin="22,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="friendsPort" HorizontalAlignment="Left" Height="22" Margin="22,38,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <ListBox x:Name="chatBox" HorizontalAlignment="Left" Height="100" Margin="58,80,0,0" VerticalAlignment="Top" Width="416"/>
-        <TextBox x:Name="clientMessage" HorizontalAlignment="Left" Height="82" Margin="36,225,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="499"/>
+        <Button x:Name="connect" Content="Connect" HorizontalAlignment="Left" Margin="10,224,0,0" VerticalAlignment="Top" Width="120" Click="Connect_Click"/>
+        <Button x:Name="Send" Content="Send" HorizontalAlignment="Left" Margin="675,356,0,0" VerticalAlignment="Top" Width="110" Click="Send_Click" Height="56"/>
+        <TextBox x:Name="clientPort" HorizontalAlignment="Left" Height="23" Margin="10,50,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="friendsPort" HorizontalAlignment="Left" Height="22" Margin="10,99,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="120"/>
+        <ListBox x:Name="chatBox" HorizontalAlignment="Left" Height="301" Margin="144,50,0,0" VerticalAlignment="Top" Width="641"/>
+        <TextBox x:Name="clientMessage" HorizontalAlignment="Left" Height="56" Margin="10,356,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="660"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="My Port:" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,78,0,0" TextWrapping="Wrap" Text="Friends Port:" VerticalAlignment="Top"/>
+        <TextBox x:Name="friendsIPText" HorizontalAlignment="Left" Height="23" Margin="10,147,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="FriendsIPText_TextChanged"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,126,0,0" TextWrapping="Wrap" Text="Friends IP Address:" VerticalAlignment="Top"/>
+        <TextBox x:Name="userName" HorizontalAlignment="Left" Height="23" Margin="10,196,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,175,0,0" TextWrapping="Wrap" Text="Username:" VerticalAlignment="Top"/>
+        <TextBlock x:Name="userIPShow" HorizontalAlignment="Left" Margin="10,9,0,0" TextWrapping="Wrap" Text="User IP: " VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

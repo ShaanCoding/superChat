@@ -23,57 +23,76 @@ namespace superChat
     /// </summary>
     public partial class MainWindow : Window
     {
-        Socket sck;
+        Socket socket;
         EndPoint epLocal, epRemote;
         byte[] buffer;
+        bool isConnected = false;
 
         public MainWindow()
         {
             InitializeComponent();
+            userIPShow.Text += getLocalIp();
         }
 
         private void Connect_Click(object sender, RoutedEventArgs e)
         {
-            //Setup socket
-            sck = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            sck.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            if (isConnected == false)
+            {
+                //Grab information
+                string localIp = getLocalIp();
+                string remoteIp = friendsIPText.Text;
+                int userPort = Convert.ToInt32(clientPort.Text);
+                int friendPort = Convert.ToInt32(friendsPort.Text);
 
-            string localIp = getLocalIp();
-            string remoteIp = getLocalIp();
+                //Setup socket
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                epLocal = new IPEndPoint(IPAddress.Parse(localIp), userPort);
+                socket.Bind(epLocal);
+                //Connects to remote ip
+                epRemote = new IPEndPoint(IPAddress.Parse(remoteIp), friendPort);
+                socket.Connect(epRemote);
+                //listen to specific port
+                buffer = new byte[1500];
+                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(MessageCallBack), buffer);
 
-            Console.WriteLine("Press any key to continue");
-            Console.ReadLine();
-            Console.WriteLine("Please enter your port");
-            int userPort = Convert.ToInt32(clientPort.Text);
-            Console.WriteLine("Please enter friend port");
-            int friendPort = Convert.ToInt32(friendsPort.Text);
-
-            epLocal = new IPEndPoint(IPAddress.Parse(localIp), userPort);
-            sck.Bind(epLocal);
-            //Connects to remote ip
-            epRemote = new IPEndPoint(IPAddress.Parse(remoteIp), friendPort);
-            sck.Connect(epRemote);
-            //listen to specific port
-            buffer = new byte[1500];
-            sck.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(MessageCallBack), buffer);
-
+                //Updates connection flags
+                if (isConnected == true)
+                {
+                    isConnected = false;
+                }
+                else if (isConnected == false)
+                {
+                    isConnected = true;
+                }
+                MessageBox.Show("Connected");
+            }
+            else if(isConnected == true)
+            {
+                MessageBox.Show("Error Already Connected");
+            }
         }
 
         private void Send_Click(object sender, RoutedEventArgs e)
         {
-            //Convert string message to byte
-            ASCIIEncoding aEncoding = new ASCIIEncoding();
-            byte[] sendingMessage = new byte[1500];
-            sendingMessage = aEncoding.GetBytes(clientMessage.Text);
-            //Sending the encoded message
-            sck.Send(sendingMessage);
-            //Adding to the listbox
-            chatBox.Items.Add("Me: " + clientMessage.Text + "\n");
-            clientMessage.Text = "";
+            //Sending message function
+            if(clientMessage.Text != "")
+            {
+                //Convert string message to byte
+                ASCIIEncoding aEncoding = new ASCIIEncoding();
+                byte[] sendingMessage = new byte[1500];
+                sendingMessage = aEncoding.GetBytes(userName.Text + ": " + clientMessage.Text);
+                //Sending the encoded message
+                socket.Send(sendingMessage);
+                //Adding to the listbox
+                chatBox.Items.Add("Me: " + clientMessage.Text);
+                clientMessage.Text = "";
+            }
         }
 
         private void MessageCallBack(IAsyncResult aResult)
         {
+            //Async recursive function checking if any messages have been sent to the client
             try
             {
                 byte[] recievedData = new byte[1500];
@@ -84,20 +103,20 @@ namespace superChat
                 int i = recievedMessage.IndexOf('\0');
                 if (i >= 0) recievedMessage = recievedMessage.Substring(0, i);
 
+                //If recieved message is present multi-thread will delegate a update to chatbox
                 chatBox.Dispatcher.Invoke(
                     DispatcherPriority.Normal,
                     new Action(
                         delegate ()
                         {
-                            chatBox.Items.Add("Friend: " + recievedMessage);
+                            chatBox.Items.Add(recievedMessage);
                         }
                         )
                     );
 
-       
-
+                //clear buffer & rescan
                 buffer = new byte[1500];
-                sck.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(MessageCallBack), buffer);
+                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(MessageCallBack), buffer);
 
             }
             catch (Exception ex)
@@ -106,8 +125,15 @@ namespace superChat
             }
 
         }
+
+        private void FriendsIPText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
         private string getLocalIp()
         {
+            //Grabs local ip of clients server
             IPHostEntry host;
             host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (IPAddress ip in host.AddressList)
