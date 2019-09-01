@@ -36,53 +36,72 @@ namespace superChat
 
         private void Connect_Click(object sender, RoutedEventArgs e)
         {
-            if (isConnected == false)
+            try
             {
-                //Grab information
-                string localIp = getLocalIp();
-                string remoteIp = friendsIPText.Text;
-                int userPort = Convert.ToInt32(clientPort.Text);
-                int friendPort = Convert.ToInt32(friendsPort.Text);
-
-                //Setup socket
-                socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                epLocal = new IPEndPoint(IPAddress.Parse(localIp), userPort);
-                socket.Bind(epLocal);
-                //Connects to remote ip
-                epRemote = new IPEndPoint(IPAddress.Parse(remoteIp), friendPort);
-                socket.Connect(epRemote);
-                //listen to specific port
-                buffer = new byte[1500];
-                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(MessageCallBack), buffer);
-
-                //Updates connection flags
-                if (isConnected == true)
+                if (isConnected == false && IPAddress.TryParse(friendsIPText.Text, out IPAddress address) && userName.Text != "" && int.TryParse(clientPort.Text, out int clientPortCheck) && int.TryParse(friendsPort.Text, out int friendsPortCheck))
                 {
+                    //Grab information
+                    string localIp = getLocalIp();
+                    string remoteIp = friendsIPText.Text;
+                    int userPort = Convert.ToInt32(clientPort.Text);
+                    int friendPort = Convert.ToInt32(friendsPort.Text);
+
+                    //Setup socket
+                    socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                    epLocal = new IPEndPoint(IPAddress.Parse(localIp), userPort);
+                    socket.Bind(epLocal);
+                    //Connects to remote ip
+                    epRemote = new IPEndPoint(IPAddress.Parse(remoteIp), friendPort);
+                    socket.Connect(epRemote);
+                    //listen to specific port
+                    buffer = new byte[1500];
+                    socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(MessageCallBack), buffer);
+
+                    //Updates connection flags
+                    if (isConnected == true)
+                    {
+                        isConnected = false;
+                    }
+                    else if (isConnected == false)
+                    {
+                        isConnected = true;
+                    }
+                    connect.Content = "Disconnect";
+                }
+                else if (isConnected == true)
+                {
+                    //Convert string message to byte
+                    ASCIIEncoding aEncoding = new ASCIIEncoding();
+                    string disconnectMessage = "{1!ziFEl1.M@)d^d4n7qyRhGYwyZjCVl^#QKD(e)]x/96JB??ce#&xH_XO?5}&L " + userName;
+                    byte[] sendingMessage = new byte[1500];
+                    sendingMessage = aEncoding.GetBytes(disconnectMessage);
+                    //Sending the encoded message
+                    socket.Send(sendingMessage);
+                    //Adding to the listbox
+                    chatBox.Items.Add("You have disconnected");
+                    //Disconnects & diposes of socket
+                    socket.Dispose();
+                    connect.Content = "Connect";
                     isConnected = false;
                 }
-                else if (isConnected == false)
-                {
-                    isConnected = true;
-                }
-                MessageBox.Show("Connected");
             }
-            else if(isConnected == true)
+            catch(Exception ex)
             {
-                MessageBox.Show("Error Already Connected");
+                MessageBox.Show("Error: " + ex);
             }
         }
 
         private void Send_Click(object sender, RoutedEventArgs e)
         {
             //Sending message function
-            if(clientMessage.Text != "")
+            if(clientMessage.Text != "" && socket.IsBound == true)
             {
-                //Convert string message to byte
+                //Sends encoded message indicating friend has disconnected
                 ASCIIEncoding aEncoding = new ASCIIEncoding();
                 byte[] sendingMessage = new byte[1500];
                 sendingMessage = aEncoding.GetBytes(userName.Text + ": " + clientMessage.Text);
-                //Sending the encoded message
+
                 socket.Send(sendingMessage);
                 //Adding to the listbox
                 chatBox.Items.Add("Me: " + clientMessage.Text);
@@ -103,31 +122,44 @@ namespace superChat
                 int i = recievedMessage.IndexOf('\0');
                 if (i >= 0) recievedMessage = recievedMessage.Substring(0, i);
 
-                //If recieved message is present multi-thread will delegate a update to chatbox
-                chatBox.Dispatcher.Invoke(
-                    DispatcherPriority.Normal,
-                    new Action(
-                        delegate ()
-                        {
-                            chatBox.Items.Add(recievedMessage);
-                        }
-                        )
-                    );
+                if (!recievedMessage.Contains("{1!ziFEl1.M@)d^d4n7qyRhGYwyZjCVl^#QKD(e)]x/96JB??ce#&xH_XO?5}&L"))
+                {
+                    //If recieved message is present multi-thread will delegate a update to chatbox
+                    chatBox.Dispatcher.Invoke(
+                        DispatcherPriority.Normal,
+                        new Action(
+                            delegate ()
+                            {
+                                chatBox.Items.Add(recievedMessage);
+                            }
+                            )
+                        );
 
-                //clear buffer & rescan
-                buffer = new byte[1500];
-                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(MessageCallBack), buffer);
+                    //clear buffer & rescan
+                    buffer = new byte[1500];
+                    socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(MessageCallBack), buffer);
+                }
+                else if(recievedMessage.Contains("{1!ziFEl1.M@)d^d4n7qyRhGYwyZjCVl^#QKD(e)]x/96JB??ce#&xH_XO?5}&L"))
+                {
+                    string nameOfFriend = recievedMessage.Replace("{1!ziFEl1.M@)d^d4n7qyRhGYwyZjCVl^#QKD(e)]x/96JB??ce#&xH_XO?5}&L ", "");
+                    //Sends a disconnect message
+                    chatBox.Dispatcher.Invoke(
+                        DispatcherPriority.Normal,
+                        new Action(
+                            delegate ()
+                            {
+                                chatBox.Items.Add(nameOfFriend + " has disconnected");
+                            }
+                            )
+                        );
+                }
 
             }
             catch (Exception ex)
             {
-                chatBox.Items.Add("Error: " + ex);
+                //If recieved message is present multi-thread will delegate a update to chatbox
+                MessageBox.Show("Error: " + ex);
             }
-
-        }
-
-        private void FriendsIPText_TextChanged(object sender, TextChangedEventArgs e)
-        {
 
         }
 
