@@ -15,7 +15,7 @@
         <TextBox x:Name="clientMessage" HorizontalAlignment="Left" Height="56" Margin="10,356,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="660"/>
         <TextBlock HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="My Port:" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="10,78,0,0" TextWrapping="Wrap" Text="Friends Port:" VerticalAlignment="Top"/>
-        <TextBox x:Name="friendsIPText" HorizontalAlignment="Left" Height="23" Margin="10,147,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="FriendsIPText_TextChanged"/>
+        <TextBox x:Name="friendsIPText" HorizontalAlignment="Left" Height="23" Margin="10,147,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
         <TextBlock HorizontalAlignment="Left" Margin="10,126,0,0" TextWrapping="Wrap" Text="Friends IP Address:" VerticalAlignment="Top"/>
         <TextBox x:Name="userName" HorizontalAlignment="Left" Height="23" Margin="10,196,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
         <TextBlock HorizontalAlignment="Left" Margin="10,175,0,0" TextWrapping="Wrap" Text="Username:" VerticalAlignment="Top"/>

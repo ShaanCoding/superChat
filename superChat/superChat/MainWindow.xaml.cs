@@ -18,9 +18,6 @@ using System.Windows.Threading;
 
 namespace superChat
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         Socket socket;
@@ -51,9 +48,11 @@ namespace superChat
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                     epLocal = new IPEndPoint(IPAddress.Parse(localIp), userPort);
                     socket.Bind(epLocal);
+
                     //Connects to remote ip
                     epRemote = new IPEndPoint(IPAddress.Parse(remoteIp), friendPort);
                     socket.Connect(epRemote);
+
                     //listen to specific port
                     buffer = new byte[1500];
                     socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(MessageCallBack), buffer);
@@ -76,10 +75,11 @@ namespace superChat
                     string disconnectMessage = "{1!ziFEl1.M@)d^d4n7qyRhGYwyZjCVl^#QKD(e)]x/96JB??ce#&xH_XO?5}&L " + userName;
                     byte[] sendingMessage = new byte[1500];
                     sendingMessage = aEncoding.GetBytes(disconnectMessage);
+
                     //Sending the encoded message
                     socket.Send(sendingMessage);
-                    //Adding to the listbox
                     chatBox.Items.Add("You have disconnected");
+
                     //Disconnects & diposes of socket
                     socket.Dispose();
                     connect.Content = "Connect";
@@ -101,8 +101,8 @@ namespace superChat
                 ASCIIEncoding aEncoding = new ASCIIEncoding();
                 byte[] sendingMessage = new byte[1500];
                 sendingMessage = aEncoding.GetBytes(userName.Text + ": " + clientMessage.Text);
-
                 socket.Send(sendingMessage);
+
                 //Adding to the listbox
                 chatBox.Items.Add("Me: " + clientMessage.Text);
                 clientMessage.Text = "";
@@ -114,14 +114,15 @@ namespace superChat
             //Async recursive function checking if any messages have been sent to the client
             try
             {
+                //Recieves transmission and converts byte[] to string
                 byte[] recievedData = new byte[1500];
                 recievedData = (byte[])aResult.AsyncState;
-                //Convert byte[] to string
                 ASCIIEncoding aEncoding = new ASCIIEncoding();
                 string recievedMessage = aEncoding.GetString(recievedData);
                 int i = recievedMessage.IndexOf('\0');
                 if (i >= 0) recievedMessage = recievedMessage.Substring(0, i);
 
+                //Checks if clientDisconnect string
                 if (!recievedMessage.Contains("{1!ziFEl1.M@)d^d4n7qyRhGYwyZjCVl^#QKD(e)]x/96JB??ce#&xH_XO?5}&L"))
                 {
                     //If recieved message is present multi-thread will delegate a update to chatbox
@@ -142,6 +143,7 @@ namespace superChat
                 else if(recievedMessage.Contains("{1!ziFEl1.M@)d^d4n7qyRhGYwyZjCVl^#QKD(e)]x/96JB??ce#&xH_XO?5}&L"))
                 {
                     string nameOfFriend = recievedMessage.Replace("{1!ziFEl1.M@)d^d4n7qyRhGYwyZjCVl^#QKD(e)]x/96JB??ce#&xH_XO?5}&L ", "");
+
                     //Sends a disconnect message
                     chatBox.Dispatcher.Invoke(
                         DispatcherPriority.Normal,
