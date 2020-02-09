@@ -1,6 +1,8 @@
 # superChat
 This application is a simple P2P (peer-to-peer) LAN communication application. This application allows clients to connect to a certain IP and send and receive messages through a small, compact and non-intrusive chat application requiring no external libraries to function.
 
+![Main Menu](Images/mainMenu.png)
+
 ## How To Use
 1. Enter the port you wish to communicate from on your side
 2. Enter the port your friend wishes to communicate from on their side
